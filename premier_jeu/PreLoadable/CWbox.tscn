@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Scripts/Transformable.gd" type="Script" id=1]
+[ext_resource path="res://PreLoadable/spriteCWbox.tscn" type="PackedScene" id=2]
+[ext_resource path="res://PreLoadable/colliderCWbox.tscn" type="PackedScene" id=3]
+
+[sub_resource type="RectangleShape2D" id=8]
+
+[node name="CWbox" type="StaticBody2D"]
+position = Vector2( 888, 361 )
+collision_mask = 15
+script = ExtResource( 1 )
+this_shape = "CWbox"
+
+[node name="Sprite" parent="." instance=ExtResource( 2 )]
+
+[node name="CollisionShape2D" parent="." instance=ExtResource( 3 )]
+visible = false
+shape = SubResource( 8 )
+
+[connection signal="mouse_entered" from="." to="." method="_on_CWbox_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_CWbox_mouse_exited"]

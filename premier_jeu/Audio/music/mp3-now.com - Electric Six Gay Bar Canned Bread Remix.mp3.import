@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/mp3-now.com - Electric Six Gay Bar Canned Bread Remix.mp3-b575a4738ab6ca9041394c004221a681.mp3str"
+
+[deps]
+
+source_file="res://Audio/music/mp3-now.com - Electric Six Gay Bar Canned Bread Remix.mp3"
+dest_files=[ "res://.import/mp3-now.com - Electric Six Gay Bar Canned Bread Remix.mp3-b575a4738ab6ca9041394c004221a681.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
