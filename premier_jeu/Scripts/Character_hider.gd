@@ -5,13 +5,14 @@ onready var tween  :  Tween = $Tween
 
 var idle_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Idle (32x32).png")
 var run_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Run (32x32).png")
+var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 var stop_anim = false
 var transformed = false
 var transformed_sprite = null
 var transformed_collider = null
 
-var id
+signal died(ts,is_player)
 
 func _ready():	
 	#velocite.y = gravity
@@ -122,3 +123,11 @@ func set_shader_color(color):
 func set_initial_position(pos : Vector2) :
 	global_position =   pos
 
+func die_c() -> void  :
+	if transformed :
+		stopTransformation()
+	var ts = tomb_stone.instance()
+	ts.setPosition(self.global_position)
+	get_parent().add_child(ts)
+	emit_signal("died",ts,false)
+	queue_free()

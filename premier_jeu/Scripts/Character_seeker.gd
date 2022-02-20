@@ -84,3 +84,6 @@ func shoot(dir) -> void :
 	b.setPosition(shoot_point.global_position)
 	b.setDirection(dir)
 	get_parent().add_child(b)
+
+func render() -> void :
+	camera.current = true

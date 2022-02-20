@@ -15,6 +15,7 @@ var _nicknames := {}
 var _colors := {}
 var _game_states := {}
 var _victories :=  {}
+var _positions  := {}
 
 var _user_name : String 
 var in_round : bool = false
@@ -25,10 +26,12 @@ signal presences_disconnections
 signal new_presence(id,nickname)
 signal my_color_received(color)
 signal presence_ready(id)
+signal hider_dead(id)
+signal stop_match(reason)
 
 #DELETE!!!!!!!!!!! JUST FOR TESTS
 signal match_start(im_seeker,seeker_id)
-signal pos_received(pos,id)
+signal pos_received
 signal transformation(shape,id)
 signal shoot(dir,id)
 var seeker : bool = false
@@ -44,6 +47,11 @@ enum OpCodes {
 	UPDATE_POSITION,
 	TRANSFORMATION,
 	SHOOT,
+	DEATH,
+	SEEKER_LEFT,
+	ALL_HIDERS_LEFT,
+	SEEKER_TIME_OUT,
+	ALL_HIDERS_FOUND,
 	#mort,stop_round(seeker deco ou tt hiders deco)
 }
 
@@ -56,7 +64,6 @@ func authentificate_async() -> int:
 	var test_session : NakamaSession = yield(_client.authenticate_device_async(deviceid,null,true),"completed")
 	if not test_session.is_exception():
 		_session =  test_session
-
 	return result
 	
 func connect_to_server_async() -> int:
@@ -220,9 +227,6 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 				return
 			
 			var decoded: Dictionary = JSON.parse(raw).result
-			
-			#just for tests!!!!!!
-			
 			in_round   = true
 			
 			if decoded.id == get_user_id():
@@ -235,11 +239,14 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 		OpCodes.UPDATE_POSITION:
 			var decoded: Dictionary = JSON.parse(raw).result
 			
-			if decoded.id  == get_user_id():
+			if not decoded.has("positions") :
 				return
+			
+			for key in decoded.positions.keys() :
+				if not (key ==  get_user_id()):
+					_positions[key] = decoded.positions[key]
 				
-			var pos  =  Vector2(decoded.pos.x,decoded.pos.y)
-			emit_signal("pos_received",pos,decoded.id)
+			emit_signal("pos_received")
 			
 		OpCodes.TRANSFORMATION:
 			var decoded: Dictionary = JSON.parse(raw).result
@@ -258,7 +265,33 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			
 			var dir =  decoded.direction
 			emit_signal("shoot",dir,decoded.id)
-
+		
+		OpCodes.DEATH:
+			var decoded: Dictionary = JSON.parse(raw).result
+			
+			if decoded.id == get_user_id():
+				return
+			
+			emit_signal("hider_dead",decoded.id)
+		
+		OpCodes.SEEKER_LEFT:
+			var decoded: Dictionary = JSON.parse(raw).result
+			
+			for id in _victories.keys():
+				if not(_victories[id] == null):
+					_victories[id] ==  decoded.victories[id]
+			
+			emit_signal("stop_match","SEEKER LEFT")
+			
+		OpCodes.ALL_HIDERS_LEFT:
+			var decoded: Dictionary = JSON.parse(raw).result
+			
+			for id in _victories.keys():
+				if not(_victories[id] == null):
+					_victories[id] ==  decoded.victories[id]
+			
+			emit_signal("stop_match","ALL HIDERS LEFT")
+	
 func send_previous_joined_presences() -> void:
 	if _socket:
 		var payload := {}
@@ -289,6 +322,11 @@ func send_shoot(dir : int) -> void :
 		var payload := {id = get_user_id(), direction  =  dir}
 		_socket.send_match_state_async(_world_id, OpCodes.SHOOT, JSON.print(payload))
 
+func send_death() -> void :
+	if _socket:
+		var payload := {id = get_user_id()}
+		_socket.send_match_state_async(_world_id, OpCodes.DEATH, JSON.print(payload))
+	
 func get_user_id()  :
 	return (_session.user_id)
 	

@@ -244,3 +244,7 @@ scale = Vector2( 1.32, 0.879995 )
 texture = ExtResource( 4 )
 region_enabled = true
 region_rect = Rect2( 76, 87, 35, 21 )
+
+[node name="waiting" type="Timer" parent="."]
+
+[node name="round_chrono" type="Timer" parent="."]

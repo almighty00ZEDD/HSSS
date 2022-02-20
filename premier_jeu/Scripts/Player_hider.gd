@@ -7,6 +7,7 @@ var jumpCount = 0.4
 
 var idle_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Idle (32x32).png")
 var run_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Run (32x32).png")
+var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 const where_floor = Vector2(0,-1)
 var stop_anim = false
@@ -19,29 +20,30 @@ onready var camera  : Camera2D = $Camera2D
 var transformed_sprite = null
 var transformed_collider = null
 
+signal died(ts,is_player)
+
 
 func _ready():	
 	velocite.y = gravity
+# warning-ignore:return_value_discarded
 	delay.connect("timeout",self,"send_position")
 	camera.current  =  true
 	
 func _physics_process(delta):
 	 
-	#running manoeuvre
 	run()
 	if(is_on_floor()):
 		jumpc = 2;
-	#jumping manoeuvre
+
 	quit_transformation()
 	jump(delta)
-	#if(Input.is_action_pressed("ui_select")):
-	#	setHBColor()
 	
 	transformation_manoeuvre()
 	
 	if velocite.x == 0 and !stop_anim :
 		anim_idle()
 		
+	# warning-ignore:return_value_discarded
 	move_and_slide(velocite, where_floor)
 
 func anim_idle():
@@ -164,4 +166,13 @@ func send_position() -> void :
 	
 func set_initial_position(pos : Vector2) :
 	global_position =   pos
-	
+
+func die() -> void:
+	if transformed :
+		stopTransformation()
+	var ts = tomb_stone.instance()
+	ts.setPosition(self.global_position)
+	get_parent().add_child(ts)
+	emit_signal("died",ts,true)
+	NetworkManager.send_death()
+	queue_free()

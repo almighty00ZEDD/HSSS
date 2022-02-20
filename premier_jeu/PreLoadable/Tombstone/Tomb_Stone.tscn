@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Sprites/Pixel Art Platformer - Village Props v2.1.0/Texture/TX Village Props.png" type="Texture" id=1]
+[ext_resource path="res://Scripts/Tomb_Stone.gd" type="Script" id=2]
+
+[sub_resource type="RectangleShape2D" id=11]
+
+[node name="Tomb_Stone" type="KinematicBody2D"]
+collision_mask = 11
+script = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 511, 145, 35, 47 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2( 1.278, 2.35 )
+shape = SubResource( 11 )

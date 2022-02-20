@@ -5,6 +5,11 @@ var speed = 200
 var gravity = 300
 var jumpCount = 0.4
 
+const MINUTE : float = 60.0
+const WAITING_TIME :  float = 10.0
+const ROUND_DURATION :  float = 5.0 * MINUTE
+const WAITING_FIX_LOG : String = "WAITING FOR THE OTHERS TO HIDE : "
+
 var idle_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Virtual Guy/Idle (32x32).png")
 var run_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Virtual Guy/Run (32x32).png")
 var bullet : PackedScene = preload("res://PreLoadable/Bullet/Bullet.tscn")
@@ -16,20 +21,37 @@ onready var camera  : Camera2D = $Camera2D
 onready var gun : Sprite = $gun
 onready var shoot_point : Position2D = $shoot_point
 onready var cool_down_delay : Timer = $cool_dewn_delay
+onready var waiting  : Timer = $waiting
+onready var round_chrono : Timer  = $round_chrono
+var Time_logger :  Label
 
 var can_shoot : bool = true
-
+var can_move  =  false
 
 func _ready():	
 	velocite.y = gravity
+# warning-ignore:return_value_discarded
 	delay.connect("timeout",self,"send_position")
 	camera.current  =  true
+# warning-ignore:return_value_discarded
 	cool_down_delay.connect("timeout",self,"on_cool_down")
+	waiting.wait_time  = WAITING_TIME
+	round_chrono.wait_time = ROUND_DURATION
+# warning-ignore:return_value_discarded
+	waiting.connect("timeout",self,"on_waiting_over")
+# warning-ignore:return_value_discarded
+	round_chrono.connect("timeout",self,"on_round_over")
+	Time_logger.text = WAITING_FIX_LOG + String(WAITING_TIME)
+	Time_logger.show()
+	waiting.start()
+	
 	
 func _physics_process(delta):
 	 
-	#running manoeuvre
-	run()
+	if can_move :
+		run()
+	else :
+		Time_logger.text = WAITING_FIX_LOG + String(int(waiting.time_left))
 		
 	jump(delta)
 	#if(Input.is_action_pressed("ui_select")):
@@ -41,6 +63,7 @@ func _physics_process(delta):
 	if velocite.x == 0 and !stop_anim :
 		anim_idle()
 		
+# warning-ignore:return_value_discarded
 	move_and_slide(velocite, where_floor)
 
 func anim_idle():
@@ -117,7 +140,6 @@ func shoot() -> void:
 	if not can_shoot:
 		return
 	
-	
 	var b = bullet.instance()
 	b.setPosition(shoot_point.global_position)
 	var dir = 1
@@ -133,3 +155,10 @@ func shoot() -> void:
 	
 func on_cool_down() -> void:
 	can_shoot  = true
+
+func on_waiting_over() -> void :
+	can_move = true
+	Time_logger.hide()
+
+func on_round_over() -> void :
+	pass

@@ -9,11 +9,12 @@ var players = []
 
 func _ready():
 	winnerAnnouncer.text  = ""
+# warning-ignore:return_value_discarded
 	readyButton.connect("pressed",self,"player_ready")
 	
 
 func announce_winner(winner :  String)  -> void :
-	winnerAnnouncer.text  =  winner +  " "  + "has won this round!"
+	winnerAnnouncer.text  =  winner
 
 
 func add_player(var player_id ,  color ,user_name : String, state  : String, victories) -> void:
@@ -53,4 +54,14 @@ func presence_ready(id) ->  void :
 	for inst  in players :
 		if inst.player_id == id :
 			inst.set_state("Ready")
+	
+func back_to_connected() -> void :
+	for inst in players   :
+		inst.set_state("connected")
+
+func update_player_victories() -> void :
+	for key in  NetworkManager._victories.keys():
+		for inst in players :
+			if key == inst.player_id:
+				inst.update_victories(NetworkManager._victories[key])
 			

@@ -2,7 +2,7 @@ extends KinematicBody2D
 
 var velocite = Vector2()
 var speed = 200
-var gravity = 300
+var gravity = 0
 var jumpCount = 0.4
 
 var idle_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Idle (32x32).png")
@@ -13,15 +13,19 @@ var stop_anim = false
 var jumpc = 2
 var transformed = false
 var color_num = 0
+var tombstone : PackedScene = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 
 var transformed_sprite = null
 var transformed_collider = null
-
+var pos
 
 func _ready():	
 	velocite.y = gravity
-	get_parent().get_node("Brique")
+	
+
+	
+	
 
 func _physics_process(delta):
 	 
@@ -149,13 +153,8 @@ func transformation():
 	$Sprite.visible = false
 
 func setHBColor():
-
-		if(color_num == 2) : color_num = 0
-		else : color_num = color_num + 1
-		$particles.process_material.set("color",Globals.particle_Color[color_num])
-		for i in range(3):
-			print(color_num)
-			print(i)
-			$Sprite.material.set("shader_param/BLUE" + String(i+1),Globals.head_band[color_num][i])
-#blue shader parms : 1. 1816c1 /2. 021491 /3. 3836d6
-#logique : normal/foncé/clair 
+	var ts = tombstone.instance()
+	
+	get_parent().add_child(ts)
+	ts.setPosition(global_position)
+	queue_free()
