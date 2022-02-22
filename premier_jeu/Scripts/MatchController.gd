@@ -21,7 +21,7 @@ onready var pos_hider4  :  Position2D  = $pos_hider4
 onready var pos_seeker  :  Position2D  = $pos_seeker
 
 onready var time_log : Label = $UI/time_log
-var _player
+var _player = null
 
 func _ready():
 	hider_positions["1"] = pos_hider1.position
@@ -183,17 +183,16 @@ func on_hider_dead(id) -> void :
 		
 func on_stop_match(reason) -> void :
 	for key in  characters.keys():
-		if not (characters[key] ==  null) :
+		if is_instance_valid(characters[key]):
 			characters[key].queue_free()
-			characters[key] = null
+		characters[key] = null
 	
 	characters.clear()
-	if not (_player  ==  null):
+	if is_instance_valid(_player):
 		_player.queue_free()
 	_player = null
-
 	
-	PlayersInfos.announce_winner(reason)
+	PlayersInfos.display_info(reason)
 	PlayersInfos.update_player_victories()
 	PlayersInfos.show()
 	

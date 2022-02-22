@@ -225,7 +225,6 @@ texture = ExtResource( 3 )
 hframes = 12
 
 [node name="collision_base" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2( -1.55701, 2.09601 )
 shape = SubResource( 1 )
 

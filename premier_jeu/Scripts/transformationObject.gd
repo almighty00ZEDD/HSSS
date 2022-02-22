@@ -3,7 +3,7 @@ extends StaticBody2D
 var shape
 
 func _on_CWbox_mouse_entered():
-	if NetworkManager.seeker :
+	if NetworkManager.seeker  :
 		return
 		
 	Globals.trasform_to(shape)

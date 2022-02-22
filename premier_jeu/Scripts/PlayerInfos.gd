@@ -4,7 +4,6 @@ onready var username_label: Label = $Username
 onready var victories_label: Label = $Victories
 onready var state_label: Label = $State
 
-var _victories :  int = 0
 var player_id
 
 
@@ -24,6 +23,5 @@ func set_color(color  : String) -> void :
 	victories_label.set_modulate(color)
 
 func update_victories(vict : int) -> void:
-	_victories = _victories + vict
-	set_victories(String(_victories))
+	set_victories(String(vict))
 	

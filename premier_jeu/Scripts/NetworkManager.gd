@@ -4,7 +4,7 @@ const KEY := "ZEDD_GAME"
 var _session  : NakamaSession
 var _client  := Nakama.create_client(KEY,"127.0.0.1",7350,"http")
 var _socket : NakamaSocket
-var _world_id := ""
+var _world_id = null
 
 #red, blue ,green, yellow
 const _COLORS = ["ffffff","ff0000","2600ff","0cff00","fffd21"]
@@ -29,7 +29,7 @@ signal presence_ready(id)
 signal hider_dead(id)
 signal stop_match(reason)
 
-#DELETE!!!!!!!!!!! JUST FOR TESTS
+
 signal match_start(im_seeker,seeker_id)
 signal pos_received
 signal transformation(shape,id)
@@ -86,52 +86,31 @@ func connect_to_server_async() -> int:
 func _on_nakama_socket_closed() -> void:
 	_socket = null
 
-#diviser cette fonction en plusieurs car elle résume trop d'étapes
-#explication dedans !
-func join_world_async() -> Dictionary:
-	#appel rpc pour avoir l'id du premier match vivant dans nakama sinon en créé un coté serveur
-	var world :  NakamaAPI.ApiRpc = yield(_client.rpc_async(_session,"get_world_id",""),"completed")
-	if not world.is_exception():
-		_world_id = world.payload #retourne l'id du match retourné par le serveur
-		print("world id retourné , valeur   : %s " %[_world_id])
-	else:
-		print("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
-	#rejoindre ce match grace a son id
-	#coté serveur : implicitement appel match_join attempt puis match join
-	#le serveur nous enregistre dans ce match
-	var match_join_result : NakamaRTAPI.Match  = yield(_socket.join_match_async(_world_id),"completed")	
-	if match_join_result.is_exception():
-		var exception : NakamaException =  match_join_result.get_exception()
-		printerr("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
-		return {}
-	
-	#match join result contiens les infors du match ici on affiche les joueurs de la partie
-	for presence in  match_join_result.presences:
-		_presences[presence.user_id] = presence
-	
-	return _presences
-	
 func join_matchmaker():
 	var world :  NakamaAPI.ApiRpc = yield(_client.rpc_async(_session,"join_matchmaker",""),"completed")
 	if not world.is_exception():
-		_world_id = world.payload #retourne l'id du match retourné par le serveur
-		print("world id retourné , valeur   : %s " %[_world_id])
+		_world_id = world.payload
 	else:
-		print("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
-	#rejoindre ce match grace a son id
-	#coté serveur : implicitement appel match_join attempt puis match join
-	#le serveur nous enregistre dans ce match
+		return("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
+	
 	var match_join_result : NakamaRTAPI.Match  = yield(_socket.join_match_async(_world_id),"completed")	
 	if match_join_result.is_exception():
 		var exception : NakamaException =  match_join_result.get_exception()
-		printerr("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
-		
-	
+		return("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
+	else :
+		return "OK"
+
+func leave_match_async():
+	var match_leave_result : NakamaAsyncResult =  yield(_socket.leave_match_async(_world_id),"completed")
+	_world_id   =  null
+	if match_leave_result.is_exception() :
+		var exception : NakamaException =  match_leave_result.get_exception()
+		return("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
 
 func create_private_match() -> String:
 	var world :  NakamaAPI.ApiRpc = yield(_client.rpc_async(_session,"create_private_match",""),"completed")
 	if not world.is_exception():
-		_world_id = world.payload #retourne l'id du match retourné par le serveur
+		_world_id = world.payload 
 		print("world id retourné , valeur   : %s " %[_world_id])
 		
 		var match_join_result : NakamaRTAPI.Match  = yield(_socket.join_match_async(_world_id),"completed")	
@@ -141,24 +120,19 @@ func create_private_match() -> String:
 		
 		return _world_id
 	else:
-		print("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
-		return null
+		return("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
+		
 	
-#a priori il faut une entrée directe au jeu vu qu'on a deja son identifiant :p
-func join_private_match(input_world_id : String):
-	#var payload  : Dictionary = {"world_id" : input_world_id}
-	#var world :  NakamaAPI.ApiRpc = yield(_client.rpc_async(_session,"join_private_match",JSON.print(payload)),"completed")
-	#if not world.is_exception():
-	#	_world_id = world.payload #retourne l'id du match retourné par le serveur
-	#	print("world id retourné , valeur   : %s " %[_world_id])
-	#else:
-	#	print("error world id  : %s  ---  exeption  :  %s" % [_world_id, world.get_exception().message])
+
+func join_private_match(input_world_id : String) -> String:
+	
 	var match_join_result : NakamaRTAPI.Match  = yield(_socket.join_match_async(input_world_id),"completed")
 	if match_join_result.is_exception():
 		var exception : NakamaException =  match_join_result.get_exception()
-		printerr("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
+		return ("Error joining the match :   %s -  %s"  % [exception.status_code, exception.message])
 	else:
 		_world_id =  input_world_id
+		return "OK"
 		
 	
 func _on_NakamaSocket_received_match_presence(new_presences: NakamaRTAPI.MatchPresenceEvent) -> void :
@@ -206,12 +180,14 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			
 			if(decoded.id == get_user_id()):
 				_colors[decoded.id]  =  decoded.color
+				_victories[decoded.id]  =  0  #interne  nouvelle presence  =  0 victoires par default
 				emit_signal("my_color_received",decoded.color)
 				safe_join = true #now we can receive the match start since the server can't start without the player being ready since there's no guarantee start_round would'nt arrive before the player's new_presence
 			else :
 				_presences[decoded.id] =  decoded.presence
 				_nicknames[decoded.id] =  decoded.nickname
 				_colors[decoded.id]  =  decoded.color
+				_victories[decoded.id]  =  0  #interne  nouvelle presence  =  0 victoires par default
 				emit_signal("new_presence",decoded.id,decoded.color,decoded.nickname,"connected",0)
 			
 		OpCodes.READY_PRESENCE:
@@ -278,19 +254,39 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			var decoded: Dictionary = JSON.parse(raw).result
 			
 			for id in _victories.keys():
-				if not(_victories[id] == null):
-					_victories[id] ==  decoded.victories[id]
-			
+				_victories[id] =  decoded.victories[id]
+
 			emit_signal("stop_match","SEEKER LEFT")
+			seeker = false
 			
 		OpCodes.ALL_HIDERS_LEFT:
 			var decoded: Dictionary = JSON.parse(raw).result
 			
 			for id in _victories.keys():
-				if not(_victories[id] == null):
-					_victories[id] ==  decoded.victories[id]
-			
+					_victories[id] =  decoded.victories[id]
+
 			emit_signal("stop_match","ALL HIDERS LEFT")
+			seeker  =  false
+			
+		OpCodes.ALL_HIDERS_FOUND:
+			var decoded: Dictionary = JSON.parse(raw).result
+			
+			for id in _victories.keys():
+					_victories[id] =  decoded.victories[id]
+			
+			emit_signal("stop_match","THE SEEKER WINS")
+			seeker  =  false
+		
+		OpCodes.SEEKER_TIME_OUT :
+			var decoded: Dictionary = JSON.parse(raw).result
+			
+			for id in _victories.keys():
+					_victories[id] =  decoded.victories[id]
+			
+			emit_signal("stop_match","TIMEOUT !")
+			seeker  =  false
+		
+		
 	
 func send_previous_joined_presences() -> void:
 	if _socket:
@@ -326,7 +322,12 @@ func send_death() -> void :
 	if _socket:
 		var payload := {id = get_user_id()}
 		_socket.send_match_state_async(_world_id, OpCodes.DEATH, JSON.print(payload))
-	
+
+func send_seeker_time_out() -> void :
+	if _socket:
+		var payload := {}
+		_socket.send_match_state_async(_world_id, OpCodes.SEEKER_TIME_OUT, JSON.print(payload))
+
 func get_user_id()  :
 	return (_session.user_id)
 	

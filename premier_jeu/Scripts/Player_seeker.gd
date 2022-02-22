@@ -50,20 +50,18 @@ func _physics_process(delta):
 	 
 	if can_move :
 		run()
+				
+		jump(delta)
+
+	if Input.is_action_pressed("ui_space"):
+		shoot()
 	else :
 		Time_logger.text = WAITING_FIX_LOG + String(int(waiting.time_left))
 		
-	jump(delta)
-	#if(Input.is_action_pressed("ui_select")):
-	#	setHBColor()
-	if Input.is_action_pressed("ui_space"):
-		shoot()
-		
-	
 	if velocite.x == 0 and !stop_anim :
 		anim_idle()
 		
-# warning-ignore:return_value_discarded
+	# warning-ignore:return_value_discarded
 	move_and_slide(velocite, where_floor)
 
 func anim_idle():
@@ -161,4 +159,4 @@ func on_waiting_over() -> void :
 	Time_logger.hide()
 
 func on_round_over() -> void :
-	pass
+	NetworkManager.send_seeker_time_out()

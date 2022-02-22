@@ -22,15 +22,33 @@ onready var _join_pmj : Button = $PMJoin/JoinBtn
 onready var _menu_pmc : VBoxContainer  =  $PMCreation
 onready var _pmc_le : LineEdit = $PMCreation/HBoxContainer/LineEdit
 onready var _pmc_join_btn  :  Button = $PMCreation/JoinBtn
+onready var error_msg :  Label  =  $Error_msg
 
 func _ready():
+	# warning-ignore:return_value_discarded
 	_start_btn.connect("pressed",self,"nickname_selected")
+	# warning-ignore:return_value_discarded
 	_pm_create.connect("pressed",self,"create_private_match")
+	# warning-ignore:return_value_discarded
 	_pm_join.connect("pressed",self,"join_private_match")
+	# warning-ignore:return_value_discarded
 	_join_pmj.connect("pressed",self,"join_private_match2")
+	# warning-ignore:return_value_discarded
 	_pmc_join_btn.connect("pressed",self,"start_private_match")
+	# warning-ignore:return_value_discarded
 	_random.connect("pressed",self,"start_matchmaking")
-	
+	error_msg.hide()
+
+func _process(delta):
+	if Input.is_action_pressed("ui_cancel"):
+		_main_nav_menu.hide()
+		_menu_pmc.hide()
+		_menu_pmj.hide()
+		_nickname_menu.show()
+		if not (NetworkManager._world_id ==  null):
+			yield(NetworkManager.leave_match_async(),"completed")
+
+		
 func nickname_selected():
 	#keep the nickname somewhere -- use network manager
 	var username  : String = _nickName_le.text
@@ -44,6 +62,7 @@ func nickname_selected():
 	_main_nav_menu.show()
 
 func create_private_match():
+	error_msg.hide()
 	var id :  String =  yield(NetworkManager.create_private_match(),"completed")
 	if not (id == null):
 		_pmc_le.text = id
@@ -51,26 +70,42 @@ func create_private_match():
 	_menu_pmc.show()
 	
 func join_private_match():
+	error_msg.hide()
 	_main_nav_menu.hide()
 	_menu_pmj.show()
 	
 func join_private_match2():
+	error_msg.hide()
 	var world_id : String = _match_id_pmj.text
+	var res  : String
 	if(world_id == ""):
 		return
 	else:
-		yield(NetworkManager.join_private_match(world_id),"completed")
+		res =  yield(NetworkManager.join_private_match(world_id),"completed")
 	
-	get_tree().change_scene_to(game_scene)
+	if res  ==  "OK"  :
+		# warning-ignore:return_value_discarded
+		get_tree().change_scene_to(game_scene)
+	else:
+		error_msg.text  =  res
+		error_msg.show()
 
 func start_private_match() -> void :
+	error_msg.hide()
 	load_match_scene()
 	
 
 func load_match_scene()  -> void  :
+	# warning-ignore:return_value_discarded
 	get_tree().change_scene_to(game_scene)
 
 func start_matchmaking() -> void :
-	yield(NetworkManager.join_matchmaker(),"completed")
-	get_tree().change_scene_to(game_scene)
-	pass
+	error_msg.hide()
+	var res  : String  =  yield(NetworkManager.join_matchmaker(),"completed")
+	if res == "OK"  :
+		# warning-ignore:return_value_discarded
+		get_tree().change_scene_to(game_scene)
+	else:
+		error_msg.text  =  res
+		error_msg.show()
+

@@ -98,7 +98,8 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Jeu_pour_apprendre"
+config/name="HIDE AND SEEK :SHAPE SHIFTERS"
+config/description="A hide and seek multiplayer game, with shooting guys in suits and shape shifting frogs"
 run/main_scene="res://Scenes/MainMenu.tscn"
 config/icon="res://icon.png"
 

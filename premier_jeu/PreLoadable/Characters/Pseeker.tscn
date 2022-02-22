@@ -17,7 +17,7 @@ shader_param/BLUE2 = Color( 0.0980392, 0.494118, 0, 1 )
 shader_param/BLUE3 = Color( 0.360784, 0.87451, 0.329412, 1 )
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 24.5, 26.5658 )
+extents = Vector2( 22.9715, 26.5658 )
 
 [sub_resource type="Animation" id=2]
 length = 0.001
@@ -204,7 +204,7 @@ texture = ExtResource( 5 )
 hframes = 12
 
 [node name="collision_base" type="CollisionShape2D" parent="."]
-position = Vector2( -1.55701, 2.09601 )
+position = Vector2( -0.0285034, 2.09601 )
 shape = SubResource( 1 )
 
 [node name="anim" type="AnimationPlayer" parent="."]

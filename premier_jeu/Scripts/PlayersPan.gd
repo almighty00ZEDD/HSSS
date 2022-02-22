@@ -1,20 +1,20 @@
 extends Control
 
 onready  var PlayersInfos : VBoxContainer = $Panel/PlayersInfos
-onready var winnerAnnouncer : Label = $Panel/PlayersInfos/WinnerSentence
+onready var round_info : Label = $Panel/PlayersInfos/WinnerSentence
 onready var readyButton  : Button = $Panel/Button
 
 const playerInfo = preload("res://Scenes/PlayerInfos.tscn")
 var players = []
 
 func _ready():
-	winnerAnnouncer.text  = ""
+	round_info.text  = ""
 # warning-ignore:return_value_discarded
 	readyButton.connect("pressed",self,"player_ready")
 	
 
-func announce_winner(winner :  String)  -> void :
-	winnerAnnouncer.text  =  winner
+func display_info(info :  String)  -> void :
+	round_info.text  =  info
 
 
 func add_player(var player_id ,  color ,user_name : String, state  : String, victories) -> void:
