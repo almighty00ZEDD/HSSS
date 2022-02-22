@@ -7,8 +7,11 @@ local active_round = false
 local active_players = 0
 local seeker_id  = nil
 local hiders_left  =  0
---before the starting round be sure to give the characters correct spawn positions
 
+--changes the label when needed so the filter ine the matchmaker can avoid mistakes
+--this script controls both private and public so this is a way to stay in context
+local original_labe = nil
+local full_match = "full"
 -- Custom operation codes. Nakama specific codes are <= 0.
 local OpCodes = {
 
@@ -39,6 +42,7 @@ function world_control.match_init(context  ,params)
   }
   local tick_rate =  10
   local label =  params.type
+  original_label = label
   return state,  tick_rate, label
 end
 
@@ -46,6 +50,10 @@ function world_control.match_join_attempt(context ,dispatcher, tick, state, pres
 
   if state.presences[presence.user_id] ~= nil then
     return state, false,  "user  already logged in!"
+  end
+
+  if nb_players ==  3  then
+    label =  full_match
   end
 
   if nb_players ==  4  then
@@ -73,12 +81,9 @@ end
 function  world_control.match_leave(context ,dispatcher, tick, state, presences)
   for _,presence in ipairs(presences)  do
 
+    label  =  original_label
     --can't play withou the seeker!
     if presence.user_id  ==  seeker_id then
-      active_round = false
-      active_players = 0
-      seeker_id  = nil
-      hiders_left  = 0
       back_to_lobby(state,"connected")
       clear_round_data(state)
       encoded = encode_victories(state)
@@ -86,10 +91,6 @@ function  world_control.match_leave(context ,dispatcher, tick, state, presences)
 
     --the seeker can't play alone
     elseif (state.game_states[presence.user_id] == "plays") and (active_players  ==  2) then
-      active_round = false
-      active_players = 0
-      seeker_id  = nil
-      hiders_left = 0
       back_to_lobby(state,"connected")
       clear_round_data(state)
       encoded = encode_victories(state)
@@ -137,12 +138,10 @@ function world_control.match_loop(context,  dispatcher, tick, state,  messages)
         if op_code == OpCodes.DEATH then
           state.victories[seeker_id] = state.victories[seeker_id] + 1
           state.found[decoded.id] = 1
+          hiders_left =  hiders_left -1
 
           if hiders_left == 0 then
-            active_round = false
-            active_players = 0
-            seeker_id  = nil
-            hiders_left = 0
+
             back_to_lobby(state,"connected")
             clear_round_data(state)
 
@@ -157,21 +156,14 @@ function world_control.match_loop(context,  dispatcher, tick, state,  messages)
         if op_code == OpCodes.SEEKER_TIME_OUT then
 
             for k,_ in pairs(state.victories)  do
-                if (state.found[k] == nil) and (state.game_states[k] == "plays")  then
+                if (state.found[k] == nil) and (state.game_states[k] == "plays") and k ~= seeker_id then
                   state.victories[k]  = state.victories[k] + 1
                 end
             end
 
-            active_round = false
-            active_players = 0
-            seeker_id  = nil
-            hiders_left = 0
             back_to_lobby(state,"connected")
             clear_round_data(state)
 
-            local data = {
-                  ["victories"] = state.victories,
-              }
               encoded = encode_victories(state)
             dispatcher.broadcast_message(OpCodes.SEEKER_TIME_OUT,encoded)
         end
@@ -385,6 +377,11 @@ end
 --clears the  round data in state
 
 function clear_round_data(state)
+
+  active_round = false
+  active_players = 0
+  seeker_id  = nil
+  hiders_left = 0
 
   for k,_ in pairs(state.presences) do
     state.found[k] = nil

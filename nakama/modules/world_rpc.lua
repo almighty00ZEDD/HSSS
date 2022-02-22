@@ -2,16 +2,14 @@ local nakama  =  require("nakama")
 
 
 --matches criteria
-local limit = 10                        --max number of matches to return
-local authoritative = nil               --both relayed and authoritative                    --max number of players in a match
+local limit = 10
+local authoritative = nil
 local public = "public"
 
 local  function get_world_id(_,_)
-  local  matches = nakama.match_list() --liste des matches publié sur le serveur
-  local current_match = matches[1] --choisir le match voulu,  plus tard plus complexe(privé, random)
+  local  matches = nakama.match_list()
+  local current_match = matches[1]
 
-  --basique :  si un match existe donc (le premier de la liste) on retourne son id pour interagir avec
-  --sinon on en créé un nouveau sur le serveur avec le script world_control
   if current_match ==  nil  then
     return nakama.match_create("world_control",{})
   else
