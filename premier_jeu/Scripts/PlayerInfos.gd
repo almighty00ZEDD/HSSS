@@ -24,4 +24,7 @@ func set_color(color  : String) -> void :
 
 func update_victories(vict : int) -> void:
 	set_victories(String(vict))
+
+func get_state() -> String:
+	return state_label.text
 	

@@ -37,7 +37,11 @@ func set_my_color(color) -> void :
 		if inst.player_id == NetworkManager.get_user_id():
 			inst.set_color(NetworkManager._COLORS[color])
 
-	
+func game_states_on_round_over() -> void:
+	for inst  in players :
+		if inst.get_state() ==  "plays":
+			inst.set_state("connected")
+			
 func remove_player(id) -> void:
 	for player  in  players :
 		if  player.player_id  == id  :

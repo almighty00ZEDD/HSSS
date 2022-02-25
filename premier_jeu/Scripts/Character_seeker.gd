@@ -7,7 +7,6 @@ var bullet : PackedScene = preload("res://PreLoadable/Bullet/Bullet.tscn")
 var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 var stop_anim = false
-var id
 
 onready var camera  : Camera2D = $Camera2D
 onready var gun : Sprite = $gun
@@ -17,8 +16,6 @@ onready var tween : Tween = $Tween
 var transformed : bool = false
 var transformed_sprite = null
 var transformed_collider = null
-
-signal died
 
 
 func _physics_process(delta):
@@ -147,5 +144,4 @@ func die_c() -> void  :
 	var ts = tomb_stone.instance()
 	ts.setPosition(self.global_position)
 	get_parent().add_child(ts)
-	emit_signal("died",ts,false)
 	queue_free()

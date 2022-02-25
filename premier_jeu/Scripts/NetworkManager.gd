@@ -182,6 +182,7 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			if(decoded.id == get_user_id()):
 				_colors[decoded.id]  =  decoded.color
 				_victories[decoded.id]  =  0  #interne  nouvelle presence  =  0 victoires par default
+				_nicknames[decoded.id] =  _user_name
 				emit_signal("my_color_received",decoded.color)
 				safe_join = true #now we can receive the match start since the server can't start without the player being ready since there's no guarantee start_round would'nt arrive before the player's new_presence
 			else :

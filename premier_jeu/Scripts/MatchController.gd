@@ -128,7 +128,7 @@ func on_match_start() -> void :
 	add_child( _player )
 
 	#setup characters
-	for key in NetworkManager._presences.keys() :		
+	for key in NetworkManager._presences.keys() :
 		characters[key]  = character_scene.instance()
 		characters[key].set_initial_position(spawn_positions[String(NetworkManager._colors[key])])
 		characters[key].set_shader_color(NetworkManager._colors[key])
@@ -155,14 +155,16 @@ func on_shoot(dir : int,id) -> void  :
 				characters[key].shoot(dir)
 
 
-func on_player_dead(ts,is_player) -> void:
+func on_player_dead() -> void:
 	for character  in  characters :
 		if is_instance_valid(character)  and (not character == null):
 			character.render()
 
 func on_character_dead(id) -> void :
-	characters[id].die_c()
-	characters[id] = null
+	if characters.has(id):
+		if is_instance_valid(characters[id]) and characters[id] != null: 
+			characters[id].die_c()
+			characters[id] = null
 		
 func on_stop_match(reason) -> void :
 	for key in  characters.keys():
@@ -175,6 +177,7 @@ func on_stop_match(reason) -> void :
 		_player.queue_free()
 	_player = null
 	
+	PlayersInfos.game_states_on_round_over()
 	PlayersInfos.display_info(reason)
 	PlayersInfos.update_player_victories()
 	PlayersInfos.show()
