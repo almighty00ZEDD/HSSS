@@ -26,15 +26,15 @@ signal presences_disconnections
 signal new_presence(id,nickname)
 signal my_color_received(color)
 signal presence_ready(id)
-signal hider_dead(id)
+signal character_dead(id)
 signal stop_match(reason)
 
 
-signal match_start(im_seeker,seeker_id)
+signal match_start
 signal pos_received
 signal transformation(shape,id)
 signal shoot(dir,id)
-var seeker : bool = false
+
 #mettre une var seeker pour empecher les boite de s'illuminer quand on est seeker!
 
 #ne pas oublier de changer les numeros correspondant car on changera ces codes de toute façons
@@ -48,11 +48,8 @@ enum OpCodes {
 	TRANSFORMATION,
 	SHOOT,
 	DEATH,
-	SEEKER_LEFT,
-	ALL_HIDERS_LEFT,
-	SEEKER_TIME_OUT,
-	ALL_HIDERS_FOUND,
-	#mort,stop_round(seeker deco ou tt hiders deco)
+	DECLARE_WINNER,
+	ALL_OTHERS_LEFT,
 }
 
 
@@ -140,9 +137,13 @@ func _on_NakamaSocket_received_match_presence(new_presences: NakamaRTAPI.MatchPr
 	for leave in new_presences.leaves:
 		#warning-ignore: return_value_discarded
 		_presences.erase(leave.user_id)
+# warning-ignore:return_value_discarded
 		_nicknames.erase(leave.user_id)
+# warning-ignore:return_value_discarded
 		_colors.erase(leave.user_id)
+# warning-ignore:return_value_discarded
 		_game_states.erase(leave.user_id)
+# warning-ignore:return_value_discarded
 		_victories.erase(leave.user_id)
 
 	emit_signal("presences_disconnections")
@@ -153,7 +154,7 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 	var raw := match_state.data
 	
 	#if the player joins in the middle of a round he ignores the gameplay packets
-	if (not in_round)  and (code > 4) :
+	if (not in_round)  and (code > 4) and (code < 9):
 		return
 
 	match code:
@@ -201,17 +202,9 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			#will crash the game of the other players in this match
 			if(not safe_join):
 				return
-			
-			var decoded: Dictionary = JSON.parse(raw).result
 			in_round   = true
+			emit_signal("match_start")
 			
-			if decoded.id == get_user_id():
-				seeker = true
-				emit_signal("match_start",true,decoded.id)
-			else :
-				emit_signal("match_start",false,decoded.id)
-			
-		#tests
 		OpCodes.UPDATE_POSITION:
 			var decoded: Dictionary = JSON.parse(raw).result
 			
@@ -239,7 +232,7 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			if decoded.id == get_user_id():
 				return
 			
-			var dir =  decoded.direction
+			var dir :  int  =  decoded.direction
 			emit_signal("shoot",dir,decoded.id)
 		
 		OpCodes.DEATH:
@@ -248,43 +241,21 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 			if decoded.id == get_user_id():
 				return
 			
-			emit_signal("hider_dead",decoded.id)
+			emit_signal("character_dead",decoded.id)
 		
-		OpCodes.SEEKER_LEFT:
-			var decoded: Dictionary = JSON.parse(raw).result
-			
-			for id in _victories.keys():
-				_victories[id] =  decoded.victories[id]
-
-			emit_signal("stop_match","SEEKER LEFT")
-			seeker = false
-			
-		OpCodes.ALL_HIDERS_LEFT:
-			var decoded: Dictionary = JSON.parse(raw).result
-			
-			for id in _victories.keys():
-					_victories[id] =  decoded.victories[id]
-
-			emit_signal("stop_match","ALL HIDERS LEFT")
-			seeker  =  false
-			
-		OpCodes.ALL_HIDERS_FOUND:
-			var decoded: Dictionary = JSON.parse(raw).result
-			
-			for id in _victories.keys():
-					_victories[id] =  decoded.victories[id]
-			
-			emit_signal("stop_match","THE SEEKER WINS")
-			seeker  =  false
+		OpCodes.ALL_OTHERS_LEFT:
+			emit_signal("stop_match","ALL THE OTHERS LEFT")
 		
-		OpCodes.SEEKER_TIME_OUT :
+		OpCodes.DECLARE_WINNER:
 			var decoded: Dictionary = JSON.parse(raw).result
 			
-			for id in _victories.keys():
-					_victories[id] =  decoded.victories[id]
+			for key  in   _victories.keys():
+				_victories[key] = decoded.victories[key]
 			
-			emit_signal("stop_match","TIMEOUT !")
-			seeker  =  false
+			emit_signal("stop_match",_nicknames[decoded.id] + " WINS!")
+
+			
+
 		
 		
 	
@@ -315,7 +286,7 @@ func send_transformation(shape: String) -> void:
 
 func send_shoot(dir : int) -> void :
 	if _socket:
-		var payload := {id = get_user_id(), direction  =  dir}
+		var payload := {id = get_user_id(), direction = dir}
 		_socket.send_match_state_async(_world_id, OpCodes.SHOOT, JSON.print(payload))
 
 func send_death() -> void :

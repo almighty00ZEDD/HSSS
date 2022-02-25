@@ -4,30 +4,24 @@ onready var  UI :  CanvasLayer = $UI
 var PlayersInfos : Control   =  preload("res://Scenes/Lobby.tscn").instance()
 var characters := {}
 
-var player_seeker : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
-var character_seeker : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
+var player_scene : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
+var character_scene : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
 
-var player_hider : PackedScene = preload("res://PreLoadable/Characters/Phider.tscn")
-var character_hider : PackedScene = preload("res://PreLoadable/Characters/Chider.tscn")
+var spawn_positions : Dictionary = {}
 
-var hider_positions : Dictionary = {}
-var _seeker_id
 
-onready var pos_hider1  :  Position2D = $pos_hider1
-onready var pos_hider2  :  Position2D  = $pos_hider2
-onready var pos_hider3  :  Position2D  = $pos_hider3
-onready var pos_hider4  :  Position2D  = $pos_hider4
+onready var pos_spawn1  :  Position2D = $pos_spawn1
+onready var pos_spawn2  :  Position2D  = $pos_spawn2
+onready var pos_spawn3  :  Position2D  = $pos_spawn3
+onready var pos_spawn4  :  Position2D  = $pos_spawn4
 
-onready var pos_seeker  :  Position2D  = $pos_seeker
-
-onready var time_log : Label = $UI/time_log
 var _player = null
 
 func _ready():
-	hider_positions["1"] = pos_hider1.position
-	hider_positions["2"] = pos_hider2.position
-	hider_positions["3"] = pos_hider3.position
-	hider_positions["4"] = pos_hider4.position
+	spawn_positions["1"] = pos_spawn1.position
+	spawn_positions["2"] = pos_spawn2.position
+	spawn_positions["3"] = pos_spawn3.position
+	spawn_positions["4"] = pos_spawn4.position
 	
 	UI.add_child(PlayersInfos)
 # warning-ignore:return_value_discarded
@@ -56,7 +50,7 @@ func _ready():
 # warning-ignore:return_value_discarded
 	NetworkManager.connect("shoot",self,"on_shoot")
 # warning-ignore:return_value_discarded
-	NetworkManager.connect("hider_dead",self,"on_hider_dead")
+	NetworkManager.connect("character_dead",self,"on_character_dead")
 # warning-ignore:return_value_discarded
 	NetworkManager.connect("stop_match",self,"on_stop_match")
 
@@ -121,35 +115,22 @@ func on_presence_ready(id) -> void :
 	PlayersInfos.presence_ready(id)
 
 
-func on_match_start(seeker   :  bool, seeker_id) -> void :
+func on_match_start() -> void :
 	#hide match info
 	PlayersInfos.back_to_connected()
 	PlayersInfos.hide()
 	
-	_seeker_id = seeker_id	
-	# setup player
-	if seeker :
-		_player = player_seeker.instance()
-		_player.set_initial_position(pos_seeker.global_position)
-		_player.Time_logger  =  time_log
-	else :
-		_player = player_hider.instance()
-		_player.set_initial_position(hider_positions[String(NetworkManager._colors[NetworkManager.get_user_id()])])
-		_player.connect("died",self,"on_player_dead")
-	
+	_player = player_scene.instance()
+	_player.set_initial_position(spawn_positions[String(NetworkManager._colors[NetworkManager.get_user_id()])])
+	_player.connect("died",self,"on_player_dead")
 	_player.set_shader_color(NetworkManager._colors[NetworkManager.get_user_id()])
 		
 	add_child( _player )
 
 	#setup characters
-	for key in NetworkManager._presences.keys() :
-		if key == seeker_id:
-			characters[key]  = character_seeker.instance()
-			characters[key].set_initial_position(pos_seeker.global_position)
-		else :
-			characters[key] = character_hider.instance()
-			characters[key].set_initial_position(hider_positions[String(NetworkManager._colors[key])])
-		
+	for key in NetworkManager._presences.keys() :		
+		characters[key]  = character_scene.instance()
+		characters[key].set_initial_position(spawn_positions[String(NetworkManager._colors[key])])
 		characters[key].set_shader_color(NetworkManager._colors[key])
 		add_child(characters[key])
 
@@ -173,11 +154,13 @@ func on_shoot(dir : int,id) -> void  :
 			if not (characters[key] == null):
 				characters[key].shoot(dir)
 
-func on_player_dead(ts,is_player) -> void:
-	if is_player:
-		characters[_seeker_id].render()
 
-func on_hider_dead(id) -> void :
+func on_player_dead(ts,is_player) -> void:
+	for character  in  characters :
+		if is_instance_valid(character)  and (not character == null):
+			character.render()
+
+func on_character_dead(id) -> void :
 	characters[id].die_c()
 	characters[id] = null
 		

@@ -1,8 +1,8 @@
 extends KinematicBody2D
 
-const vitesse = Vector2(600,0)
+const vitesse : Vector2 = Vector2(600,0)
 const where_floor = Vector2(0,-1)
-var direction : int = 1
+var direction : int
 
 
 func _process(delta):	

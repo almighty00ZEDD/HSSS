@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="RectangleShape2D" id=31]
+extents = Vector2( 19.5, 22 )
+
+[node name="colliderTarget" type="CollisionShape2D"]
+shape = SubResource( 31 )

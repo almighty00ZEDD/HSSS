@@ -125,15 +125,15 @@ func transformation_manoeuvre():
 
 func changeAppearance(num):
 	if(num == 1):
-		transformed_collider = preload("res://PreLoadable/colliderCWbox.tscn").instance()
-		transformed_sprite = preload("res://PreLoadable/spriteCWbox.tscn").instance()
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderCWbox.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteCWbox.tscn").instance()
 	
 	if(num == 2):
-		transformed_collider = preload("res://PreLoadable/colliderTonneau.tscn").instance()
-		transformed_sprite = preload("res://PreLoadable/spriteTonneau.tscn").instance()
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderTonneau.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTonneau.tscn").instance()
 
 func detectCollision(col_name):
-	if(not (col_name.find("CWbox",0) == -1)):
+	if(not (col_name.find("CWBox",0) == -1)):
 		print("found cwbox")
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):

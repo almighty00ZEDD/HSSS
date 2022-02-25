@@ -14,10 +14,8 @@ var transformed_collider = null
 
 signal died(ts,is_player)
 
-func _ready():	
-	#velocite.y = gravity
-	pass
 
+# warning-ignore:unused_argument
 func _physics_process(delta):
 	 
 	run()
@@ -51,7 +49,9 @@ func set_next_position(pos : Vector2):
 	next_position  = pos
 
 func run():
+	# warning-ignore:return_value_discarded
 	tween.interpolate_property(self,"global_position",global_position,next_position,0.1)
+	# warning-ignore:return_value_discarded
 	tween.start()
 	
 	if stepify(global_position.x,0.01) == stepify(next_position.x,0.01) :
@@ -87,15 +87,15 @@ func transformation_manoeuvre(shape  : String):
 
 func changeAppearance(num):
 	if(num == 1):
-		transformed_collider = preload("res://PreLoadable/colliderCWbox.tscn").instance()
-		transformed_sprite = preload("res://PreLoadable/spriteCWbox.tscn").instance()
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderCWbox.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteCWbox.tscn").instance()
 	
 	if(num == 2):
-		transformed_collider = preload("res://PreLoadable/colliderTonneau.tscn").instance()
-		transformed_sprite = preload("res://PreLoadable/spriteTonneau.tscn").instance()
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderTonneau.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTonneau.tscn").instance()
 
 func detectCollision(col_name):
-	if(not (col_name.find("CWbox",0) == -1)):
+	if(not (col_name.find("CWBox",0) == -1)):
 		print("found cwbox")
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):

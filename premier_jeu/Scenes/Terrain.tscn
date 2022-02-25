@@ -1,9 +1,6 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Sprites/pixel_Advnture_Sprites/Free/Terrain/Terrain (16x16).png" type="Texture" id=1]
-[ext_resource path="res://PreLoadable/BriqueTst.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Sprites/Pixel Art Platformer - Village Props v2.1.0/Texture/TX Village Props.png" type="Texture" id=3]
-[ext_resource path="res://Scripts/Transformable.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 23.0843, 23.5123 )
@@ -12,62 +9,58 @@ extents = Vector2( 23.0843, 23.5123 )
 extents = Vector2( 23.0842, 23.5122 )
 
 [sub_resource type="RectangleShape2D" id=3]
-extents = Vector2( 23.0842, 23.5122 )
+extents = Vector2( 23.0842, 23 )
 
 [node name="Node2D" type="Node2D"]
 
-[node name="terre_herbeuse" type="Sprite" parent="."]
+[node name="grass" type="Sprite" parent="."]
 position = Vector2( 401.659, 385.185 )
 texture = ExtResource( 1 )
 region_enabled = true
-region_rect = Rect2( 96, 0, 48, 48 )
+region_rect = Rect2( 323, 47, 0, 0 )
 
-[node name="StaticBody2D" type="StaticBody2D" parent="terre_herbeuse"]
+[node name="StaticBody2D" type="StaticBody2D" parent="grass"]
 collision_mask = 15
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="terre_herbeuse/StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="grass/StaticBody2D"]
 position = Vector2( 0, -0.698334 )
 shape = SubResource( 1 )
 
-[node name="CWbox" type="Sprite" parent="."]
-position = Vector2( 625, 441 )
-texture = ExtResource( 3 )
-region_enabled = true
-region_rect = Rect2( 42, 19, 45, 45 )
-region_filter_clip = true
-
-[node name="StaticBody2D" type="StaticBody2D" parent="CWbox"]
-collision_mask = 15
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CWbox/StaticBody2D"]
-position = Vector2( 0, -0.698334 )
-shape = SubResource( 1 )
-
-[node name="Terre_Boueuse" type="Sprite" parent="."]
+[node name="mud" type="Sprite" parent="."]
 position = Vector2( 322.747, 454.321 )
 texture = ExtResource( 1 )
 region_enabled = true
-region_rect = Rect2( 96, 65, 48, 48 )
+region_rect = Rect2( 97, 65, 46, 46 )
 
-[node name="StaticBody2D" type="StaticBody2D" parent="Terre_Boueuse"]
+[node name="StaticBody2D" type="StaticBody2D" parent="mud"]
 collision_mask = 15
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Terre_Boueuse/StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="mud/StaticBody2D"]
 position = Vector2( 0, -0.698334 )
 shape = SubResource( 2 )
 
 [node name="brick" type="StaticBody2D" parent="."]
 position = Vector2( 471.493, 390.074 )
 collision_mask = 15
-script = ExtResource( 4 )
-this_shape = "Brique"
 
 [node name="sprite" type="Sprite" parent="brick"]
 texture = ExtResource( 1 )
 region_enabled = true
-region_rect = Rect2( 0, 0, 48, 48 )
+region_rect = Rect2( 1, 1, 46, 46 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="brick"]
+position = Vector2( 0, -0.0740051 )
 shape = SubResource( 3 )
 
-[node name="BriqueContainer" parent="." instance=ExtResource( 2 )]
+[node name="silver_plateforme" type="StaticBody2D" parent="."]
+position = Vector2( 241, 379 )
+collision_mask = 15
+
+[node name="sprite" type="Sprite" parent="silver_plateforme"]
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 193, 65, 46, 14 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="silver_plateforme"]
+position = Vector2( 0, -0.500031 )
+shape = SubResource( 3 )
