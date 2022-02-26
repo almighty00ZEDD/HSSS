@@ -7,12 +7,13 @@
 [ext_resource path="res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Virtual Guy/Run (32x32).png" type="Texture" id=5]
 
 [sub_resource type="ShaderMaterial" id=10]
+resource_local_to_scene = true
 render_priority = 1
 shader = ExtResource( 2 )
 shader_param/RED1 = Color( 0.423529, 0.85098, 0.945098, 1 )
 shader_param/RED2 = Color( 0.184314, 0.67451, 0.854902, 1 )
 shader_param/RED3 = Color( 0.67451, 0.968627, 0.980392, 1 )
-shader_param/BLUE1 = Color( 0.0862745, 0.694118, 0.0156863, 1 )
+shader_param/BLUE1 = Color( 0.188235, 0.380392, 0.164706, 1 )
 shader_param/BLUE2 = Color( 0.0980392, 0.494118, 0, 1 )
 shader_param/BLUE3 = Color( 0.360784, 0.87451, 0.329412, 1 )
 

@@ -8,7 +8,6 @@ var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 var stop_anim = false
 
-onready var camera  : Camera2D = $Camera2D
 onready var gun : Sprite = $gun
 onready var shoot_point : Position2D = $shoot_point
 onready var tween : Tween = $Tween
@@ -18,6 +17,7 @@ var transformed_sprite = null
 var transformed_collider = null
 
 
+# warning-ignore:unused_argument
 func _physics_process(delta):
 	run()
 	
@@ -44,7 +44,9 @@ func animate(anim_name):
 		
 func run():
 	
+# warning-ignore:return_value_discarded
 	tween.interpolate_property(self,"global_position",global_position,next_position,0.1)
+# warning-ignore:return_value_discarded
 	tween.start()
 	
 	if stepify(global_position.x,0.01) == stepify(next_position.x,0.01) :
@@ -71,7 +73,9 @@ func run():
 func set_shader_color(color):
 	for i in range(3):
 		$Sprite.material.set("shader_param/BLUE" + String(i+1),Globals.head_band[color - 1][i])
-	
+	print("color : %s" % [color])
+	print("globs :  %s" % [Globals.head_band[color -1]])
+		
 func set_initial_position(pos : Vector2) :
 	global_position =   pos
 
@@ -85,7 +89,8 @@ func shoot(dir) -> void :
 	get_parent().add_child(b)
 
 func render() -> void :
-	camera.current = true
+	$Camera2D.current = true
+	
 func transformation_manoeuvre(shape  : String):
 	
 	if shape == "none":

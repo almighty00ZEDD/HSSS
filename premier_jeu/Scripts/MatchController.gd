@@ -2,7 +2,7 @@ extends Node2D
 
 onready var  UI :  CanvasLayer = $UI
 var PlayersInfos : Control   =  preload("res://Scenes/Lobby.tscn").instance()
-var characters := {}
+var characters : Dictionary = {}
 
 var player_scene : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
 var character_scene : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
@@ -129,12 +129,17 @@ func on_match_start() -> void :
 
 	#setup characters
 	for key in NetworkManager._presences.keys() :
-		characters[key]  = character_scene.instance()
-		characters[key].set_initial_position(spawn_positions[String(NetworkManager._colors[key])])
-		characters[key].set_shader_color(NetworkManager._colors[key])
-		add_child(characters[key])
+		if (not key == NetworkManager.get_user_id()):
+			create_character(key)
 
+func create_character(key) :
+	characters[key]  = character_scene.instance()
+	characters[key].set_initial_position(spawn_positions[String(NetworkManager._colors[key])])
+	characters[key].set_shader_color(NetworkManager._colors[key])
+	add_child(characters[key])
 	
+	
+
 func on_pos_received() -> void :
 	for key in characters.keys():
 		if not (NetworkManager._positions[key]  ==   null) :
@@ -156,9 +161,10 @@ func on_shoot(dir : int,id) -> void  :
 
 
 func on_player_dead() -> void:
-	for character  in  characters :
-		if is_instance_valid(character)  and (not character == null):
-			character.render()
+	for key  in  characters.keys() :
+		if is_instance_valid(characters[key]):
+			characters[key].render()
+			return
 
 func on_character_dead(id) -> void :
 	if characters.has(id):

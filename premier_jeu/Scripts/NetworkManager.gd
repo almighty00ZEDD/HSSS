@@ -56,7 +56,7 @@ enum OpCodes {
 #authentification avec  id unique de sa machine (juste une formalité pour éviter la création de comptes)
 func authentificate_async() -> int:
 	var result := OK
-	var deviceid = OS.get_unique_id()
+	var deviceid = OS.get_unique_id() +"11z"
 	
 	var test_session : NakamaSession = yield(_client.authenticate_device_async(deviceid,null,true),"completed")
 	if not test_session.is_exception():

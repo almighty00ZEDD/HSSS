@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://Fonts/futile-pro-v1/FutilePro.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://TileSets/Map2.tres" type="TileSet" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://Scripts/Ninja_frog.gd" type="Script" id=8]
 [ext_resource path="res://PreLoadable/Transformables/Target.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Sprites/snoops_bows_and_guns/0px All.png" type="Texture" id=10]
+[ext_resource path="res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Idle (32x32).png" type="Texture" id=11]
 [ext_resource path="res://Shaders/frog_head_band.gdshader" type="Shader" id=14]
 
 [sub_resource type="Environment" id=8]
@@ -37,7 +38,7 @@ shader_param/BLUE2 = Color( 0.537255, 0.541176, 0.0431373, 1 )
 shader_param/BLUE3 = Color( 1, 0.988235, 0.313726, 1 )
 
 [sub_resource type="RectangleShape2D" id=24]
-extents = Vector2( 24.5, 27.2349 )
+extents = Vector2( 24.5, 26.7349 )
 
 [sub_resource type="Animation" id=25]
 length = 0.001
@@ -284,12 +285,13 @@ script = ExtResource( 8 )
 
 [node name="Sprite" type="Sprite" parent="Ninja_frog2"]
 material = SubResource( 23 )
+position = Vector2( -4, -5 )
 scale = Vector2( 2, 2 )
-texture = ExtResource( 6 )
+texture = ExtResource( 11 )
 hframes = 12
 
 [node name="collision_base" type="CollisionShape2D" parent="Ninja_frog2"]
-position = Vector2( -1.55701, 2.76511 )
+position = Vector2( -1.55713, 2.26511 )
 shape = SubResource( 24 )
 
 [node name="Camera2D" type="Camera2D" parent="Ninja_frog2"]

@@ -57,7 +57,7 @@ func anim_idle():
 	$Sprite.texture = idle_sprite;
 	$anim.playback_speed = 1
 	$Sprite.hframes = 11
-	$collision_base.position.y -= 5
+	#$collision_base.position.y -= 5
 	gun.position.y = 18
 	animate("idlea")
 	
@@ -213,6 +213,6 @@ func die() -> void:
 	var ts = tombstone.instance()
 	ts.setPosition(self.global_position)
 	get_parent().add_child(ts)
-	emit_signal("died")
 	NetworkManager.send_death()
 	queue_free()
+	emit_signal("died")

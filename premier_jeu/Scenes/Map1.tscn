@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://PreLoadable/Transformables/CWbox.tscn" type="PackedScene" id=1]
 [ext_resource path="res://TileSets/Map2.tres" type="TileSet" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://Scripts/MatchController.gd" type="Script" id=4]
 [ext_resource path="res://Sprites/SkyBars/BGSkyTwilight2.png" type="Texture" id=5]
 [ext_resource path="res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Run (32x32).png" type="Texture" id=6]
+[ext_resource path="res://Scripts/Ninja_frog.gd" type="Script" id=7]
 [ext_resource path="res://Sprites/whitelight.png" type="Texture" id=8]
 [ext_resource path="res://Audio/music/mp3-now.com - Electric Six Gay Bar Canned Bread Remix.mp3" type="AudioStream" id=13]
 [ext_resource path="res://Shaders/frog_head_band.gdshader" type="Shader" id=14]
@@ -239,7 +240,8 @@ environment = SubResource( 8 )
 
 [node name="Ninja_frog" type="KinematicBody2D" parent="."]
 visible = false
-position = Vector2( 1413, -958 )
+position = Vector2( 1376, 126 )
+script = ExtResource( 7 )
 
 [node name="Sprite" type="Sprite" parent="Ninja_frog"]
 material = SubResource( 10 )
@@ -253,8 +255,10 @@ position = Vector2( -1.55701, 2.09601 )
 shape = SubResource( 1 )
 
 [node name="Camera2D" type="Camera2D" parent="Ninja_frog"]
-limit_left = -38
-limit_bottom = 575
+limit_left = -5
+limit_top = -603
+limit_right = 5035
+limit_bottom = 597
 limit_smoothed = true
 smoothing_enabled = true
 smoothing_speed = 9.98
@@ -262,6 +266,7 @@ drag_margin_left = 0.3
 drag_margin_top = 0.3
 drag_margin_right = 0.3
 drag_margin_bottom = 0.3
+editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="anim" type="AnimationPlayer" parent="Ninja_frog"]

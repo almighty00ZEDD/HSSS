@@ -31,13 +31,15 @@ func _ready():
 	jumpCount  = MAX_JUMP
 	cool_down_delay.connect("timeout",self,"on_cool_down")
 
+
 func _physics_process(delta):
 	 
 	#running manoeuvre
 	run()
 	if(is_on_floor()):
-		jumpc = 2;
 		velocite.y  =  0
+		jumpc = 2
+		
 	#jumping manoeuvre
 	quit_transformation()
 	jump(delta)
@@ -50,23 +52,27 @@ func _physics_process(delta):
 	if abs(velocite.x) == 0 and !stop_anim :
 		anim_idle()
 		
-	move_and_slide(velocite, where_floor)
-		
+	var alteredVelocity = move_and_slide(velocite, where_floor)
+	if (alteredVelocity.y == 0) and (velocite.y < 0) and is_on_floor():
+		alteredVelocity.y = velocite.y
+	velocite = alteredVelocity
+
 func anim_idle():
 	if(transformed):
 		return
 	$Sprite.texture = idle_sprite;
 	$anim.playback_speed = 1
 	$Sprite.hframes = 11
-	$collision_base.position.y -= 5
+	$Sprite.position = Vector2(0,2)
 	animate("idlea")
 	
 func anim_run():
 	if(transformed):
 		return
 	$Sprite.texture = run_sprite;
-	$anim.playback_speed = 2	
+	$anim.playback_speed = 2
 	$Sprite.hframes = 12
+	$Sprite.position = Vector2.ZERO
 	animate("run")
 	
 func animate(anim_name):
