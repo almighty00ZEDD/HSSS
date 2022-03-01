@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="RectangleShape2D" id=31]
+
+[node name="colliderEnclume" type="CollisionShape2D"]
+scale = Vector2( 3.004, 1.459 )
+shape = SubResource( 31 )

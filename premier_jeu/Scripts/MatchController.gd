@@ -1,19 +1,38 @@
 extends Node2D
 
 onready var  UI :  CanvasLayer = $UI
+onready var timer_grace_seconds = $round_grace_seconds
+
 var PlayersInfos : Control   =  preload("res://Scenes/Lobby.tscn").instance()
 var characters : Dictionary = {}
 
 var player_scene : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
 var character_scene : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
 
-var spawn_positions : Dictionary = {}
+var box  : PackedScene = preload("res://PreLoadable/Transformables/CWbox.tscn")
+var tonneau  : PackedScene =  preload("res://PreLoadable/Transformables/Tonneau.tscn")
+var treasure : PackedScene =  preload("res://PreLoadable/Transformables/Treasure.tscn")
 
+var spawn_positions : Dictionary = {}
+var round_transformables  =  []
 
 onready var pos_spawn1  :  Position2D = $pos_spawn1
 onready var pos_spawn2  :  Position2D  = $pos_spawn2
 onready var pos_spawn3  :  Position2D  = $pos_spawn3
 onready var pos_spawn4  :  Position2D  = $pos_spawn4
+
+onready var gen_point1 : Position2D = $gen_point1
+onready var gen_point2 : Position2D = $gen_point2
+onready var gen_point3 : Position2D = $gen_point3
+onready var gen_point4 : Position2D = $gen_point4
+onready var gen_point5 : Position2D = $gen_point5
+onready var gen_point6 : Position2D = $gen_point6
+onready var gen_point7 : Position2D = $gen_point7
+onready var gen_point8 : Position2D = $gen_point8
+
+var points  =  []
+const LENGTHS = [470,650,300,550,600,900,570,700]
+const NB_OBJS  = [8,15,6,12,12,25,12,16]
 
 var _player = null
 
@@ -22,8 +41,11 @@ func _ready():
 	spawn_positions["2"] = pos_spawn2.position
 	spawn_positions["3"] = pos_spawn3.position
 	spawn_positions["4"] = pos_spawn4.position
-	
+	points = [gen_point1,gen_point2,gen_point3,gen_point4,gen_point5,gen_point6,gen_point7,gen_point8]
+
 	UI.add_child(PlayersInfos)
+	
+	timer_grace_seconds.connect("timeout",self,"on_grace_seconds_over")
 # warning-ignore:return_value_discarded
 	NetworkManager.connect("previous_presences",self,"_on_networkmanager_presences_changed")
 # warning-ignore:return_value_discarded
@@ -115,7 +137,12 @@ func on_presence_ready(id) -> void :
 	PlayersInfos.presence_ready(id)
 
 
-func on_match_start() -> void :
+func on_match_start(server_seed) -> void :
+	
+	seed(server_seed)
+	for i in 8 :
+		spawn_random_objects(points[i].position,LENGTHS[i],NB_OBJS[i])
+
 	#hide match info
 	PlayersInfos.back_to_connected()
 	PlayersInfos.hide()
@@ -173,6 +200,11 @@ func on_character_dead(id) -> void :
 			characters[id] = null
 		
 func on_stop_match(reason) -> void :
+	PlayersInfos.display_info(reason)
+	timer_grace_seconds.start()
+	
+func on_grace_seconds_over():
+	
 	for key in  characters.keys():
 		if is_instance_valid(characters[key]):
 			characters[key].queue_free()
@@ -184,7 +216,22 @@ func on_stop_match(reason) -> void :
 	_player = null
 	
 	PlayersInfos.game_states_on_round_over()
-	PlayersInfos.display_info(reason)
+	
 	PlayersInfos.update_player_victories()
 	PlayersInfos.show()
 	
+func spawn_random_objects(start_pos,length,nb_objects):
+	for i in nb_objects:
+		var b
+		
+		match randi() % 3 :
+			0:
+				b = box.instance()
+			1:
+				b = tonneau.instance()
+			2:
+				b = treasure.instance()
+		add_child(b)
+		b.global_position.x  = start_pos.x  + (length * randf())
+		b.global_position.y  = start_pos.y
+		

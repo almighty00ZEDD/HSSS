@@ -7,6 +7,7 @@ var bullet : PackedScene = preload("res://PreLoadable/Bullet/Bullet.tscn")
 var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 var stop_anim = false
+var shape : String
 
 onready var gun : Sprite = $gun
 onready var shoot_point : Position2D = $shoot_point
@@ -15,8 +16,9 @@ onready var tween : Tween = $Tween
 var transformed : bool = false
 var transformed_sprite = null
 var transformed_collider = null
+var shader_color : int
 
-
+var bullets = []
 # warning-ignore:unused_argument
 func _physics_process(delta):
 	run()
@@ -25,14 +27,19 @@ func anim_idle():
 	$Sprite.texture = idle_sprite;
 	$anim.playback_speed = 1
 	$Sprite.hframes = 11
-	$collision_base.position.y -= 5
+	$Sprite.position = Vector2(0,2)
 	gun.position.y = 18
 	animate("idlea")
+# warning-ignore:return_value_discarded
+	connect("mouse_entered",self,"_on_CWbox_mouse_entered")
+# warning-ignore:return_value_discarded
+	connect("mouse_exited",self,"_on_CWbox_mouse_exited")
 	
 func anim_run():
 	$Sprite.texture = run_sprite;
 	$anim.playback_speed = 2	
 	$Sprite.hframes = 12
+	$Sprite.position = Vector2.ZERO
 	gun.position.y = 15
 	animate("run")
 	
@@ -73,8 +80,7 @@ func run():
 func set_shader_color(color):
 	for i in range(3):
 		$Sprite.material.set("shader_param/BLUE" + String(i+1),Globals.head_band[color - 1][i])
-	print("color : %s" % [color])
-	print("globs :  %s" % [Globals.head_band[color -1]])
+	shader_color = color
 		
 func set_initial_position(pos : Vector2) :
 	global_position =   pos
@@ -86,6 +92,8 @@ func shoot(dir) -> void :
 	var b = bullet.instance()
 	b.setPosition(shoot_point.global_position)
 	b.setDirection(dir)
+	b.set_shader_color(shader_color)
+	bullets.append(b)
 	get_parent().add_child(b)
 
 func render() -> void :
@@ -101,6 +109,7 @@ func transformation_manoeuvre(shape  : String):
 		if(res == 0): 
 			return
 		else:
+			input_pickable = true
 			changeAppearance(res)
 		transformed = true
 		transformed_collider.position = $collision_base.position 
@@ -120,16 +129,25 @@ func changeAppearance(num):
 		transformed_collider = preload("res://PreLoadable/Transformables/colliderTonneau.tscn").instance()
 		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTonneau.tscn").instance()
 
+	if(num == 3):
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderTreasure.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTreasure.tscn").instance()
+
 func detectCollision(col_name):
 	if(not (col_name.find("CWBox",0) == -1)):
-		print("found cwbox")
+		shape = "CWBox"
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):
-		print("found brique")
+		shape = "Tonneau"
 		return 2
+	if(not (col_name.find("Treasure",0) == -1)):
+		shape = "Treasure"
+		return 3
+		
 	return 0
 	
 func stopTransformation():
+	input_pickable = false
 	$collision_base.disabled = false
 	$Sprite.visible = true
 	#$particles.emitting = true pas nécéssaire
@@ -144,9 +162,28 @@ func transformation():
 	gun.hide()
 	
 func die_c() -> void  :
+	for inst in bullets:
+		if is_instance_valid(inst):
+			inst.queue_free()
+	bullets.clear()
 	if transformed :
 		stopTransformation()
 	var ts = tomb_stone.instance()
 	ts.setPosition(self.global_position)
 	get_parent().add_child(ts)
 	queue_free()
+
+func _on_CWbox_mouse_entered():
+
+	Globals.trasform_to(shape)
+	modulate.r = 2.2
+	modulate.g = 2.2
+	modulate.b = 2.2
+	
+
+func _on_CWbox_mouse_exited():
+
+	Globals.quitTransform()
+	modulate.r = 1
+	modulate.g = 1
+	modulate.b = 1

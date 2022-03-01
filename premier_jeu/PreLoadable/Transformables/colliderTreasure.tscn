@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="RectangleShape2D" id=31]
+
+[node name="collisionTreasure" type="CollisionShape2D"]
+scale = Vector2( 2.028, 1.523 )
+shape = SubResource( 31 )

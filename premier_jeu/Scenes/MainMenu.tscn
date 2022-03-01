@@ -78,8 +78,8 @@ margin_right = 884.0
 margin_bottom = 115.0
 custom_colors/font_color = Color( 0.388235, 0.0862745, 0.752941, 1 )
 custom_fonts/font = SubResource( 4 )
-text = "HIDE AND SEEK
-SHAPE SHIFTERS"
+text = "SHAPE SHIFTERS
+FEUD"
 align = 1
 script = ExtResource( 3 )
 

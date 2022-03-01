@@ -21,7 +21,6 @@ func _on_CWbox_mouse_exited():
 	modulate.b = 1
 
 func _process(delta):
-	if not is_on_floor():
 		move_and_slide(velocite,where_floor)
 	
 	

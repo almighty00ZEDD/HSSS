@@ -22,6 +22,8 @@ var can_shoot : bool = true
 
 var transformed_sprite = null
 var transformed_collider = null
+var shader_color : int 
+var bullets = []
 
 signal died
 
@@ -57,7 +59,7 @@ func anim_idle():
 	$Sprite.texture = idle_sprite;
 	$anim.playback_speed = 1
 	$Sprite.hframes = 11
-	#$collision_base.position.y -= 5
+	$Sprite.position = Vector2(0,2)
 	gun.position.y = 18
 	animate("idlea")
 	
@@ -65,6 +67,7 @@ func anim_run():
 	$Sprite.texture = run_sprite;
 	$anim.playback_speed = 2	
 	$Sprite.hframes = 12
+	$Sprite.position = Vector2.ZERO
 	gun.position.y = 15
 	animate("run")
 	
@@ -112,7 +115,7 @@ func set_shader_color(color):
 	$particles.process_material.set("color",NetworkManager._COLORS[color])
 	for i in range(3):
 		$Sprite.material.set("shader_param/BLUE" + String(i+1),Globals.head_band[color -1 ][i])
-
+	shader_color  = color
 
 
 func send_position() -> void :
@@ -126,7 +129,6 @@ func set_initial_position(pos : Vector2) :
 	
 func shoot() -> void:
 	if can_shoot and (not transformed):
-		var  mouse_pos :  Vector2  = get_global_mouse_position()
 		var dir : int = 1
 		if $Sprite.flip_h :
 			dir = - 1
@@ -134,6 +136,8 @@ func shoot() -> void:
 		var b = bullet.instance()
 		b.setPosition(shoot_point.global_position)
 		b.setDirection(dir)
+		b.set_shader_color(shader_color)
+		bullets.append(b)
 		send_shoot(dir)
 		#add_child(b)
 		get_parent().add_child(b)
@@ -208,6 +212,10 @@ func transformation():
 	$Sprite.visible = false
 
 func die() -> void:
+	for inst in bullets:
+		if is_instance_valid(inst):
+			inst.queue_free()
+	bullets.clear()
 	if transformed :
 		stopTransformation()
 	var ts = tombstone.instance()

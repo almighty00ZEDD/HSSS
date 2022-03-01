@@ -5,6 +5,7 @@ var speed = 200
 var gravity = 200
 const MAX_JUMP  =  0.55
 var jumpCount 
+var bullets = []
 
 
 var idle_sprite = preload("res://Sprites/pixel_Advnture_Sprites/Free/Main Characters/Ninja Frog/Idle (32x32).png")
@@ -20,7 +21,7 @@ var stop_anim = false
 var jumpc = 2
 var transformed = false
 var tombstone : PackedScene = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
-
+var shape : String
 
 var transformed_sprite = null
 var transformed_collider = null
@@ -30,6 +31,8 @@ func _ready():
 	velocite.y = gravity
 	jumpCount  = MAX_JUMP
 	cool_down_delay.connect("timeout",self,"on_cool_down")
+	connect("mouse_entered",self,"_on_CWbox_mouse_entered")
+	connect("mouse_exited",self,"_on_CWbox_mouse_exited")
 
 
 func _physics_process(delta):
@@ -46,6 +49,14 @@ func _physics_process(delta):
 	
 	if Input.is_action_pressed("ui_space"):
 		shoot()
+		
+	#ajouter au player et characters des la mort ces bullets douvent disparaitre
+	#pour ajouter une petite anim a la fun du match
+	if Input.is_action_pressed("right_click"):
+		for bullet in bullets:
+			if is_instance_valid(bullet):
+				bullet.queue_free()
+		bullets.clear()
 	
 	transformation_manoeuvre()
 	
@@ -119,20 +130,22 @@ func quit_transformation():
 	if(Input.is_action_pressed("ui_down")):
 		if(transformed):
 			stopTransformation()
+			input_pickable  = false
 			gun.show()
 
 
 
 func transformation_manoeuvre():
 	if Input.is_action_just_pressed("ui_click"):
-
+		print(shape)
 		if(Globals.shape != "none" and not transformed):
-
+	
 			var res = detectCollision(Globals.shape)
 
 			if(res == 0): 
 				return
 			else:
+				input_pickable = true
 				changeAppearance(res)
 			#++ pour l'ancien seeker
 			gun.hide()
@@ -154,13 +167,21 @@ func changeAppearance(num):
 		transformed_collider = preload("res://PreLoadable/Transformables/colliderTonneau.tscn").instance()
 		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTonneau.tscn").instance()
 
+	if(num == 3):
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderTreasure.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTreasure.tscn").instance()
+
 func detectCollision(col_name):
 	if(not (col_name.find("CWBox",0) == -1)):
-		print("found cwbox")
+		shape = "CWBox"
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):
-		print("found brique")
+		shape = "Tonneau"
 		return 2
+	if(not (col_name.find("Treasure",0) == -1)):
+		shape = "Treasure"
+		return 3
+		
 	return 0
 	
 func stopTransformation():
@@ -185,10 +206,26 @@ func shoot() -> void:
 		var b = bullet.instance()
 		b.setPosition(shoot_point.global_position)
 		b.setDirection(dir)
-		#add_child(b)
+		b.set_shader_color(2)
+		bullets.append(b)
 		get_parent().add_child(b)
 		can_shoot = false
 		cool_down_delay.start()
 
 func on_cool_down() -> void:
 	can_shoot  = true
+
+func _on_CWbox_mouse_entered():
+
+	Globals.trasform_to(shape)
+	modulate.r = 2.2
+	modulate.g = 2.2
+	modulate.b = 2.2
+	
+
+func _on_CWbox_mouse_exited():
+
+	Globals.quitTransform()
+	modulate.r = 1
+	modulate.g = 1
+	modulate.b = 1

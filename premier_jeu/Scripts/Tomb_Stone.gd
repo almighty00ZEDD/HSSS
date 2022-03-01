@@ -5,6 +5,7 @@ const where_floor = Vector2(0,-1)
 
 func _ready():
 	NetworkManager.connect("stop_match",self,"on_match_stop")
+	$particles.emitting = true
 
 func _process(delta):
 	move_and_slide(speed ,where_floor)

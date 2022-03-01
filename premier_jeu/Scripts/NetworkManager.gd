@@ -30,7 +30,7 @@ signal character_dead(id)
 signal stop_match(reason)
 
 
-signal match_start
+signal match_start(server_seed)
 signal pos_received
 signal transformation(shape,id)
 signal shoot(dir,id)
@@ -56,7 +56,7 @@ enum OpCodes {
 #authentification avec  id unique de sa machine (juste une formalité pour éviter la création de comptes)
 func authentificate_async() -> int:
 	var result := OK
-	var deviceid = OS.get_unique_id() +"11z"
+	var deviceid = OS.get_unique_id()
 	
 	var test_session : NakamaSession = yield(_client.authenticate_device_async(deviceid,null,true),"completed")
 	if not test_session.is_exception():
@@ -199,12 +199,13 @@ func _on_NakamaSocket_received_match_state(match_state: NakamaRTAPI.MatchData)  
 				emit_signal("presence_ready",decoded.id)
 				
 		OpCodes.START_ROUND:
+			var decoded: Dictionary = JSON.parse(raw).result
 			#when indeed the start round arrived before the server fully registered the player 
 			#will crash the game of the other players in this match
 			if(not safe_join):
 				return
 			in_round   = true
-			emit_signal("match_start")
+			emit_signal("match_start",decoded.seed)
 			
 		OpCodes.UPDATE_POSITION:
 			var decoded: Dictionary = JSON.parse(raw).result

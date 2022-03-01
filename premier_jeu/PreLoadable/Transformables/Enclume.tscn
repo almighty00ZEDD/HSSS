@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Sprites/Pixel Art Platformer - Village Props v2.1.0/Texture/TX Village Props.png" type="Texture" id=1]
+[ext_resource path="res://Scripts/Transformable.gd" type="Script" id=2]
+
+[sub_resource type="RectangleShape2D" id=31]
+
+[node name="Enclume" type="KinematicBody2D"]
+position = Vector2( 376, -297 )
+input_pickable = true
+script = ExtResource( 2 )
+this_shape = "Enclume"
+
+[node name="spriteEnclume" type="Sprite" parent="."]
+scale = Vector2( 1.5, 1.5 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 506, 44, 42, 20 )
+
+[node name="colliderEnclume" type="CollisionShape2D" parent="."]
+scale = Vector2( 3.004, 1.459 )
+shape = SubResource( 31 )

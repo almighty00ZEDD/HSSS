@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Sprites/Pixel Art Platformer - Village Props v2.1.0/Texture/TX Village Props.png" type="Texture" id=1]
+
+[node name="spriteTreasure" type="Sprite"]
+scale = Vector2( 1.2, 1.2 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 95, 579, 34, 29 )
