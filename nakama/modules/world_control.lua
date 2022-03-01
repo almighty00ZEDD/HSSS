@@ -165,7 +165,11 @@ function world_control.match_loop(context,  dispatcher, tick, state,  messages)
           if is_everyone_ready(state) and (nb_players > 1) then
             active_players = tag_players(state,"plays")
             active_round = true
-            dispatcher.broadcast_message(OpCodes.START_ROUND,nil)
+            math.randomseed(os.time())
+            local _seed  =  math.random(0,60)
+            local data = {seed = _seed}
+            encoded = nakama.json_encode(data)
+            dispatcher.broadcast_message(OpCodes.START_ROUND,encoded)
           end
         end
       end
