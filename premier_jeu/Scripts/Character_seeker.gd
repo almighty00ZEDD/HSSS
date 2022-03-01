@@ -7,7 +7,7 @@ var bullet : PackedScene = preload("res://PreLoadable/Bullet/Bullet.tscn")
 var tomb_stone = preload("res://PreLoadable/Tombstone/Tomb_Stone.tscn")
 
 var stop_anim = false
-var shape : String
+var _shape : String
 
 onready var gun : Sprite = $gun
 onready var shoot_point : Position2D = $shoot_point
@@ -135,13 +135,13 @@ func changeAppearance(num):
 
 func detectCollision(col_name):
 	if(not (col_name.find("CWBox",0) == -1)):
-		shape = "CWBox"
+		_shape = "CWBox"
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):
-		shape = "Tonneau"
+		_shape = "Tonneau"
 		return 2
 	if(not (col_name.find("Treasure",0) == -1)):
-		shape = "Treasure"
+		_shape = "Treasure"
 		return 3
 		
 	return 0
@@ -175,7 +175,7 @@ func die_c() -> void  :
 
 func _on_CWbox_mouse_entered():
 
-	Globals.trasform_to(shape)
+	Globals.trasform_to(_shape)
 	modulate.r = 2.2
 	modulate.g = 2.2
 	modulate.b = 2.2

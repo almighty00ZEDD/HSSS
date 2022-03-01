@@ -6,12 +6,14 @@ onready var timer_grace_seconds = $round_grace_seconds
 var PlayersInfos : Control   =  preload("res://Scenes/Lobby.tscn").instance()
 var characters : Dictionary = {}
 
-var player_scene : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
-var character_scene : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
+const player_scene : PackedScene = preload("res://PreLoadable/Characters/Pseeker.tscn")
+const character_scene : PackedScene = preload("res://PreLoadable/Characters/Cseeker.tscn")
 
-var box  : PackedScene = preload("res://PreLoadable/Transformables/CWbox.tscn")
-var tonneau  : PackedScene =  preload("res://PreLoadable/Transformables/Tonneau.tscn")
-var treasure : PackedScene =  preload("res://PreLoadable/Transformables/Treasure.tscn")
+onready var main_menu_scene  : PackedScene  = load("res://Scenes/MainMenu.tscn")
+
+const box  : PackedScene = preload("res://PreLoadable/Transformables/CWbox.tscn")
+const tonneau  : PackedScene =  preload("res://PreLoadable/Transformables/Tonneau.tscn")
+const treasure : PackedScene =  preload("res://PreLoadable/Transformables/Treasure.tscn")
 
 var spawn_positions : Dictionary = {}
 var round_transformables  =  []
@@ -32,7 +34,7 @@ onready var gen_point8 : Position2D = $gen_point8
 
 var points  =  []
 const LENGTHS = [470,650,300,550,600,900,570,700]
-const NB_OBJS  = [8,15,6,12,12,25,12,16]
+const NB_OBJS  = [6,11,5,10,10,18,9,13]
 
 var _player = null
 
@@ -76,7 +78,11 @@ func _ready():
 # warning-ignore:return_value_discarded
 	NetworkManager.connect("stop_match",self,"on_stop_match")
 
-
+# warning-ignore:unused_argument
+func _input(event):
+	if Input.is_key_pressed(KEY_ESCAPE):
+		leave_match()
+		
 func show_playersInfos()  -> void  :
 	PlayersInfos.visible  =  true
 
@@ -191,7 +197,7 @@ func on_player_dead() -> void:
 	for key  in  characters.keys() :
 		if is_instance_valid(characters[key]):
 			characters[key].render()
-			return
+			break
 
 func on_character_dead(id) -> void :
 	if characters.has(id):
@@ -215,11 +221,17 @@ func on_grace_seconds_over():
 		_player.queue_free()
 	_player = null
 	
-	PlayersInfos.game_states_on_round_over()
+	Globals.destroy_tombstones()
 	
+	PlayersInfos.game_states_on_round_over()
 	PlayersInfos.update_player_victories()
 	PlayersInfos.show()
 	
+	for i  in (round_transformables.size()  -  1):
+		if is_instance_valid(round_transformables[i]):
+			round_transformables[i].queue_free()
+	round_transformables.clear()
+		
 func spawn_random_objects(start_pos,length,nb_objects):
 	for i in nb_objects:
 		var b
@@ -232,6 +244,12 @@ func spawn_random_objects(start_pos,length,nb_objects):
 			2:
 				b = treasure.instance()
 		add_child(b)
+		round_transformables.append(b)
 		b.global_position.x  = start_pos.x  + (length * randf())
 		b.global_position.y  = start_pos.y
-		
+
+func leave_match() -> void:
+	yield(NetworkManager.leave_match_async(),"completed")
+# warning-ignore:return_value_discarded
+	get_tree().change_scene_to(main_menu_scene)
+	

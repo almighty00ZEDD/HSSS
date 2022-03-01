@@ -1,7 +1,7 @@
 extends Node
 
 var shape = "none"
-
+signal destroy_tombstones
 
 var blue = [Color("1816c1"),Color("021491"),Color("3836d6")]
 var yellow = [Color("fff500"),Color("898a0b"),Color("fffc50")]
@@ -15,5 +15,8 @@ func trasform_to(name):
 
 func quitTransform():
 	shape = "none"
+
+func destroy_tombstones():
+	emit_signal("destroy_tombstones")
 	
 

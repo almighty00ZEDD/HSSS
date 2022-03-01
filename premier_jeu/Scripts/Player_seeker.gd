@@ -187,14 +187,18 @@ func changeAppearance(num):
 	if(num == 2):
 		transformed_collider = preload("res://PreLoadable/Transformables/colliderTonneau.tscn").instance()
 		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTonneau.tscn").instance()
+	
+	if(num == 3):
+		transformed_collider = preload("res://PreLoadable/Transformables/colliderTreasure.tscn").instance()
+		transformed_sprite = preload("res://PreLoadable/Transformables/spriteTreasure.tscn").instance()
 
 func detectCollision(col_name):
 	if(not (col_name.find("CWBox",0) == -1)):
-		print("found cwbox")
 		return 1
 	if(not (col_name.find("Tonneau",0) == -1)):
-		print("found brique")
 		return 2
+	if(not (col_name.find("Treasure",0) == -1)):
+		return 3
 	return 0
 	
 func stopTransformation():
@@ -221,6 +225,8 @@ func die() -> void:
 	var ts = tombstone.instance()
 	ts.setPosition(self.global_position)
 	get_parent().add_child(ts)
+	$Camera2D.current = false
+	emit_signal("died")
 	NetworkManager.send_death()
 	queue_free()
-	emit_signal("died")
+

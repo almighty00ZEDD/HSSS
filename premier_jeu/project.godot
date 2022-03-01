@@ -98,8 +98,8 @@ _global_script_class_icons={
 
 [application]
 
-config/name="HIDE AND SEEK :SHAPE SHIFTERS"
-config/description="A hide and seek multiplayer game, with shooting guys in suits and shape shifting frogs"
+config/name="SHAPE SHIFTERS FEUD"
+config/description="A multiplayer online little battle royale with shape shifting abilities"
 run/main_scene="res://Scenes/MainMenu.tscn"
 config/icon="res://icon.png"
 
